@@ -1,0 +1,150 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: operation-ftbs
+
+build:
+  artifacts:
+  - image: truenas.localdomain:5000/common-spark-base
+    context: src/spark-apps
+    docker:
+      dockerfile: Dockerfile
+      # - image: truenas.localdomain:5000/sync-notion-inbox
+      #   context: src/spark-apps/sync_notion_inbox
+      #   docker:
+      #     dockerfile: Dockerfile
+manifests:
+  rawYaml:
+  - ./k8s/*.yaml
+  # TODO: need to install spark operator
+  # - src/spark-apps/sync_notion_inbox/k8s/spark-application.yaml
+
+deploy:
+  helm:
+    hooks:
+      after:
+      - host:
+          # TODO: create the client.properties file for kafka
+          # TODO: set necessary env variables
+          command: ["sh", "./scripts/create-kafka-creds.sh"]
+    releases:
+    - name: prom-stack
+      repo: https://prometheus-community.github.io/helm-charts
+      remoteChart: kube-prometheus-stack
+      createNamespace: true
+      namespace: monitoring
+      setValues:
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: prom-stack
+        prometheus.prometheusSpec.scrapeConfigSelector:
+          # This is required otherwise the scrapeconfigs were not being provisioned
+          matchLabels:
+            prometheus: system-monitoring-prometheus
+    - name: redis
+      repo: https://charts.bitnami.com/bitnami
+      remoteChart: redis
+      setValues:
+        metrics.enabled: true
+        auth.password: "panda"
+        metrics.serviceMonitor.enabled: true
+        # metrics.serviceMonitor.namespace
+    - name: kafka
+      repo: https://charts.bitnami.com/bitnami
+      remoteChart: kafka
+      namespace: kafka
+      createNamespace: true
+      setValues:
+        # NOTE: currently not working, node-exporter cant reach brokers, waiting for fix
+        # metrics.kafka.enabled: true
+        metrics.jmx.enabled: true
+        metrics.serviceMonitor.namespace: monitoring
+        sasl.enabledMechanisms: "PLAIN"
+        sasl.client.users:
+        - user0
+        - panda
+        sasl.client.passwords: "panda"
+    # - name: spark-operator
+    #   repo: https://kubeflow.github.io/spark-operator
+    #   remoteChart: spark-operator
+    #   createNamespace: true
+    #   namespace: spark
+    #   setValues:
+    #     metrics.enabled: true
+    # - name: spark
+    #   repo: https://charts.bitnami.com/bitnami
+    #   remoteChart: spark
+    #   namespace: spark
+    - name: lenses
+      repo: https://helm.repo.lenses.io
+      remoteChart: lenses
+      namespace: kafka
+      setValues:
+        provision:
+          license: |-
+            {"key": "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.YIuDLHGXE7WFb-T8AKyrTV8iXlZNZaMHvSKbEVdRkrGKjab2pQ2oqA.ZkalURNxQcR8nFEGmUfnZA.CXIN9xUcq8xHm7LmghMYnBUxam_9JHVPZec5N4FAO3XgkKm1BXUaM3t1A8m_2Nyq2R5tYbTbNif-qUdSNsm_s0JpXHsWaT_BS_DwnG2l8T6KclcblZUD59l1qRCTRXVvWEzNWDHDHEwvPHainn0UPVv3QwXxKGHuY8M1QSIB0ZjQK-I27x48T_GEH1aGmd71g0RVBdjF5dnJ1L7claTIck3C20MoIgnMx3eycqUZ0MjoTH9BHl9M6v6vsX4D0Faueju1qyBMDh6PmG6g1M2rT-XVNwLIbF9MzaaBas5f0CyNvXDl0Wd8oUOv02VA6XSD6Z-8GcFbZw3I5OAcnfWOokVvUJZgKXFEuDK-6hnJxgnsxCixTOhfNq90rbzIbioTm8ySJO6P9BTWFkBkFErCEFUP5D4ohxJcAJNq_jYgaBqRHFTRyrU1230ZBorxeBBEdcl76XUNhjtcBi2tJAWi1BArBYvmaIJDUk_XQu1nIqbD7sXq9fQ5ibGYn-qSycRiRm7oikmJf4p9BoHyBy5uCHaRU7yxGhY6Y8caoKz8HuOVaCXyoBn_5ODsGHIhP3jBnOgd-Reo1SxVmAyxSrgF7eluUphwGXWldI9bVwf6gcnU431fSPGQaingZfCUNbh2QLfuABifMXIjYEwGoOQGqEL5qzZhFzjUzMNbZHchpd2jjzNIOTg6x694hqbiqQSAa5raZiqp9gf8B8FPO8WJ-ORyaWVywM-Ow1b8OCLh488trs7OY9aEZzqFDUNXy5_rRJdZ1ChUTtI-c8hpaR7ZxQ7Y-_lvZ6HNwvrp3YSDaxLmGN7l96YS3QyHSGCWrpTDS-hRbnQGyxkePaEMzhr3ebXQrig2CtIRWDcLJD6mt9FfOGdOlDuUR0QYI4Y1N_tuIfOAlE4RTATpKTxnej3J-EcEdq5PvPfpLEdNhW01FD2RJ0H-yi_reqPkW3q3PKUi76j0LBggxWCNYXdv8A9J7ZGSuTCUcmd5MTpqaq1AUsMvzHvSr53ACCNJpJmquMaBhJpYeUgnjAj5bjGXqpq_Mhwvue7nIPntRrnf9RFy9WJacxaKDJ0njvrin9qE-SZKIl64rc0WfwfjJJvkSjMLA3IQEObGt7cinaAeLUjirfzSmt2QOoEJqfpCGJdslwzx3gQjzsm0CHMcWkmzRF_6B3dw5nFgJl7BRxRDEBJ7pTZ6yBRQgxeFKjL7cf-Yc5j3BEYKa-4Q_MoS25UdNF-ljJbqreU9rvsdS_2HSmAH1v3rmeX22waQeLbmkSyMg6r9cERpbcQGXsnoRanOCRVqbKk1_bUTL5TRsXCumzExz_O6XgycKqMrQD57jpvOJI8p3xbc-q44vIwDCvgqY_2lqiTcOshAaNn6k0Im-x0XW8W0TfaDbg-4Au0qeqHpQQJcbGvpdNEkx5TtLKk38SLhpxHg0ffbTE9YrTdYE7DJtKbPF7s--2waR-izV63RxzVKjj-XJQ8bTNC0H0TQHReBOzaDX4QkhgLvSwhDMxHZPS3AhuV7Tg_4lwM0E2iZJTnlfUOSFxRcqRUGqvu8iVt9VkxScZHt4rrkDOPJShCKn2uHhy1zqXfiAENXJTUgY7GBBhMR7EbOC2UOhB5pq71kPpUGHVk4eh1zct79xr0DOx2EmbOdtlnrkAWeVXkRzydq79LQCzLfqfF_GaetIMdwHOUh2YDKQ6KVhPHAn6qfJKW49kTGXIam4zGTQP5VkpFjPvFXOD96cxAqplu0ZIoCz4jbxfGI1KhaK7lOSCXAWfKGKkZwVTDeXqyPnH_7HfE6JH9b8Y_ebSrXnGkMheYExUUZEIzldYdxP3Ortpr6OICbh4OJMjz_CkSHC-JcIX5lV3HOih8eb1Qp3UWhRn1CrFVfj5Py_Mt4vgjfuhguYwforJM5zvfmkFetUFDrEqKhtt-CZy2LTf6z0IZG0F77lqQWVNq2G04IdI165ziobXYeYYv28nlOtEXUoKQ5rZHZjjGEKn5qUlQDlb1-KJFjETqrxUlBHgEL1CYHwUIk01YuGnSEpLdlt8Nhu8RevZiynUxAMt4nkLZ9pJxaPtUXzT9t3zTFDxGYKuQlNxVIaV0ehk_xcdpvHOv77VqPVDP_7epkdEoZZII5IIienHRfFw4DS-OFMQZfogEikg2ZNp8MwOoTKhi5Aq5uyfZ-5cEKGGV6rtMfGN8gu12yerR0zTre20EbdGhcEAEnzhFXdAlFCi8lpwFKmOUmMDgEU11KTdZ7r1sZek0WtoHhCWfh027O4EK0I8D6E6SdzmzwMgXYrSRngmRP8dT_j3cIfl7YxbA3buKP-bzq0RYEmjhZuJffboKiy3jA08yDvPzHr_PwcIwDNkYGEFzOSCTkWpQyHV9nje1Q8IrPHWQBJ2w3wiznkxCYlOJdvo_40-yghuk1S0izam8nkKyTSCBNaQz9BSTSm_dJYBaJbFKvSe-T9HTYs-Rmv7JdWKhZg9hmGM8YATrHLidLttxpd7Ws1SrEqnwSViBvLS0OXvPz5go7YDBJZtNZeFVXrzj9bAwgvz_eQopXxziABlVnud-YXlviIzyPbWZcPsQ4Fne-iDSbhOrp2UtTNmNVfPZLsnhC0cFA8FXw4Zh_sVvCAQKNQqkltuEhI_0fJWAeZzSdv4F_iPsPG8gQUPvD5RTsZJyAkJV5iQ6k0FN5LGxsXgm7ZNFbhX9KDS9p-WaegvhwVNVy1WCcrXj_MQK4qcikymWCxAEi2ibvnTx7Ur3o4sPN8BADkEjisT_huKn4B_dEKps4lTdSMhm78pFvSvRdfyKIO5iNkHP2eL_ZvO6WECjpwHxo8Ns2Y_-rlk6C9Jbh8ItNAmRcCpPM186LsZrhipf6pGs9EiF49dWAi47-nBMtO1D1A4k5yuMx0uz9A9yActDKDr22I8rz03iUAZ9MYW42iqxsbVzjkoP3z--lL6LHPstsIEH-t8OOIyNnNFrEXmUbc2_pUGbeAClbXnL8feeQ9_KqloPPXry5KD-kOAPAm2JHiyXw-0ICkm8MaTTOIrnryxizoVSUY4DLxTtXlO4pSr42yg0CyOyiar8yvI5tCuenoWpqr3Pqmih58nDG_6wIzC2GKnRrMuLgpBxKCDi1jhkBpfPlosSnpbQfcid42JKEBmizOz6Z-Fw9S8WRbLkH-7ZcY5DIuHV9qhNTJpbF3QEwatbi29PtLl0bX_TorY5oYNcaUz7Dav0EUeiBBO8Zkw.iN6Vnvrl6x31IPM8uyCvgg", "source": "Lenses.io Ltd", "details": "Lenses", "clientId": "bc67287d-eb0b-11ee-bf14-42010af01003"}
+
+portForward:
+- resourceName: lenses
+  resourceType: service
+  namespace: kafka
+  port: 80
+  localPort: 8081
+#  Installed via minikube
+- resourceName: headlamp
+  resourceType: service
+  namespace: headlamp
+  port: 80
+  localPort: 8082
+# - resourceName: prom-stack-prometheus-node-exporter
+#   resourceType: service
+#   namespace: monitoring
+#   port: 80
+#   localPort: 8083
+# - resourceName: prom-stack-kube-prometheus-alertmanager
+#   resourceType: service
+#   namespace: monitoring
+#   port: 9093
+#   localPort: 8084
+# - resourceName: prom-stack-kube-state-metrics
+#   resourceType: service
+#   namespace: monitoring
+#   port: 8080
+#   localPort: 8085
+# - resourceName: prom-stack-grafana
+#   resourceType: service
+#   namespace: monitoring
+#   port: 80
+#   localPort: 8086
+# - resourceName: service/prom-stack-prometheus-node-exporter
+#   resourceType: service
+#   namespace: monitoring
+#   port: 9100
+#   localPort: 8087
+# - resourceName: service/prom-stack-kube-prometheus-prometheus
+#   resourceType: service
+#   namespace: monitoring
+#   port: 9090
+#   localPort: 8088
+# Add these appropriately
+# Port forwarding service/headlamp in namespace headlamp, remote port 80 -> http://127.0.0.1:8082
+# Port forwarding service/lenses in namespace kafka, remote port 80 -> http://127.0.0.1:8081
+# Port forwarding service/prom-stack-kube-prometheus-coredns in namespace kube-system, remote port 9153 -> http://127.0.0.1:9153
+# Port forwarding service/kafka-controller-headless in namespace kafka, remote port 9092 -> http://127.0.0.1:9094
+# Port forwarding service/prom-stack-grafana in namespace monitoring, remote port 80 -> http://127.0.0.1:4503
+# Port forwarding service/prom-stack-kube-prometheus-alertmanager in namespace monitoring, remote port 8080 -> http://127.0.0.1:8084
+# Port forwarding service/lenses in namespace kafka, remote port 9102 -> http://127.0.0.1:9102
+# Port forwarding service/prom-stack-kube-prometheus-kube-scheduler in namespace kube-system, remote port 10259 -> http://127.0.0.1:10259
+# Port forwarding service/prom-stack-kube-prometheus-alertmanager in namespace monitoring, remote port 9093 -> http://127.0.0.1:9096
+# Port forwarding service/prom-stack-kube-prometheus-kube-proxy in namespace kube-system, remote port 10249 -> http://127.0.0.1:10249
+# Port forwarding service/prom-stack-kube-prometheus-kube-controller-manager in namespace kube-system, remote port 10257 -> http://127.0.0.1:10257
+# Port forwarding service/prom-stack-prometheus-node-exporter in namespace monitoring, remote port 9100 -> http://127.0.0.1:9100
+# Port forwarding service/kafka-controller-headless in namespace kafka, remote port 9093 -> http://127.0.0.1:9093
+# Port forwarding service/prom-stack-kube-prometheus-kube-etcd in namespace kube-system, remote port 2381 -> http://127.0.0.1:2381
+# Port forwarding service/prom-stack-kube-state-metrics in namespace monitoring, remote port 8080 -> http://127.0.0.1:8083
+# Port forwarding service/prom-stack-kube-prometheus-operator in namespace monitoring, remote port 443 -> http://127.0.0.1:4504
+# Port forwarding service/prom-stack-kube-prometheus-prometheus in namespace monitoring, remote port 9090 -> http://127.0.0.1:9090
+# Port forwarding service/prom-stack-kube-prometheus-prometheus in namespace monitoring, remote port 8080 -> http://127.0.0.1:8080
+# Port forwarding service/kafka in namespace kafka, remote port 9092 -> http://127.0.0.1:9092
+# Port forwarding service/kafka-controller-headless in namespace kafka, remote port 9094 -> http://127.0.0.1:9095

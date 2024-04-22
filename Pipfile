@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# the-corpus = {path = "./services/the-corpus"}
+pydantic = "*"
+minio = "*"
+sqlalchemy = "*"
+pymongo = "*"
+requests-ratelimiter = "*"
+requests = "*"
+tenacity = "*"
+pytest = "*"
+pytest-vcr = "*"
+# psycopg2 = "*"
+celery = "*"
+kombu = "*"
+pytubefix = "*"
+spacy = "*"
+whisperx = "*"
+confluent-kafka = "*"
+kafka = "*"
+prometheus-client = "*"
+redis-client = "*"
+redis = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12.2"

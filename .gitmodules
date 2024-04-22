@@ -1,0 +1,13 @@
+[submodule "services/chain"]
+	path = services/chain
+	url = git@github.com:TheBranchDriftCatalyst/chain
+[submodule "services/the-corpus"]
+	path = services/the-corpus
+	url = git@github.com:TheBranchDriftCatalyst/the-corpus.git
+[submodule "services/brainz"]
+	path = services/brainz
+	url = git@github.com:TheBranchDriftCatalyst/brainz
+
+[submodule "jupyter/notebooks/goodreads-scraper"]
+	path = jupyter/notebooks/goodreads-scraper
+	url = git@github.com:TheBranchDriftCatalyst/goodreads-scraper.git

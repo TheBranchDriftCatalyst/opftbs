@@ -1,0 +1,130 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.31.0
+      x-api-key:
+      - DUMMY
+    method: GET
+    uri: https://api.congress.gov/v3/bill/117/hr/3076?limit=5
+  response:
+    body:
+      string: "{\n    \"bill\": {\n        \"actions\": {\n            \"count\":
+        74,\n            \"url\": \"https://api.congress.gov/v3/bill/117/hr/3076/actions?format=json\"\n
+        \       },\n        \"amendments\": {\n            \"count\": 48,\n            \"url\":
+        \"https://api.congress.gov/v3/bill/117/hr/3076/amendments?format=json\"\n
+        \       },\n        \"cboCostEstimates\": [\n            {\n                \"description\":
+        \"As ordered reported by the House Committee on Oversight and Reform on May
+        13, 2021\\n\",\n                \"pubDate\": \"2021-07-14T17:27:00Z\",\n                \"title\":
+        \"H.R. 3076, Postal Service Reform Act of 2021\",\n                \"url\":
+        \"https://www.cbo.gov/publication/57356\"\n            },\n            {\n
+        \               \"description\": \"As Posted on February 3, 2022,\\nand as
+        Amended by Amendment #1, the Manager's Amendment, as Posted on February 4,
+        2022\\n\",\n                \"pubDate\": \"2022-02-04T18:03:00Z\",\n                \"title\":
+        \"Estimated Budgetary Effects of Rules Committee Print 117-32 for H.R. 3076,
+        the Postal Service Reform Act of 2022\",\n                \"url\": \"https://www.cbo.gov/publication/57821\"\n
+        \           }\n        ],\n        \"committeeReports\": [\n            {\n
+        \               \"citation\": \"H. Rept. 117-89,Part 1\",\n                \"url\":
+        \"https://api.congress.gov/v3/committee-report/117/HRPT/89?format=json\"\n
+        \           },\n            {\n                \"citation\": \"H. Rept. 117-89,Part
+        2\",\n                \"url\": \"https://api.congress.gov/v3/committee-report/117/HRPT/89?format=json\"\n
+        \           }\n        ],\n        \"committees\": {\n            \"count\":
+        3,\n            \"url\": \"https://api.congress.gov/v3/bill/117/hr/3076/committees?format=json\"\n
+        \       },\n        \"congress\": 117,\n        \"constitutionalAuthorityStatementText\":
+        \"<pre>\\n[Congressional Record Volume 167, Number 81 (Tuesday, May 11, 2021)]\\n[House]\\nFrom
+        the Congressional Record Online through the Government Publishing Office [<a
+        href=\\\"https://www.gpo.gov\\\">www.gpo.gov</a>]\\nBy Mrs. CAROLYN B. MALONEY
+        of New York:\\nH.R. 3076.\\nCongress has the power to enact this legislation
+        pursuant\\nto the following:\\nArticle I, Section I, Clause 18 (Necessary
+        and Proper\\nClause)\\n[Page H2195]\\n</pre>\",\n        \"cosponsors\": {\n
+        \           \"count\": 102,\n            \"countIncludingWithdrawnCosponsors\":
+        102,\n            \"url\": \"https://api.congress.gov/v3/bill/117/hr/3076/cosponsors?format=json\"\n
+        \       },\n        \"introducedDate\": \"2021-05-11\",\n        \"latestAction\":
+        {\n            \"actionDate\": \"2022-04-06\",\n            \"text\": \"Became
+        Public Law No: 117-108.\"\n        },\n        \"laws\": [\n            {\n
+        \               \"number\": \"117-108\",\n                \"type\": \"Public
+        Law\"\n            }\n        ],\n        \"number\": \"3076\",\n        \"originChamber\":
+        \"House\",\n        \"originChamberCode\": \"H\",\n        \"policyArea\":
+        {\n            \"name\": \"Government Operations and Politics\"\n        },\n
+        \       \"relatedBills\": {\n            \"count\": 4,\n            \"url\":
+        \"https://api.congress.gov/v3/bill/117/hr/3076/relatedbills?format=json\"\n
+        \       },\n        \"sponsors\": [\n            {\n                \"bioguideId\":
+        \"M000087\",\n                \"district\": 12,\n                \"firstName\":
+        \"CAROLYN\",\n                \"fullName\": \"Rep. Maloney, Carolyn B. [D-NY-12]\",\n
+        \               \"isByRequest\": \"N\",\n                \"lastName\": \"MALONEY\",\n
+        \               \"middleName\": \"B.\",\n                \"party\": \"D\",\n
+        \               \"state\": \"NY\",\n                \"url\": \"https://api.congress.gov/v3/member/M000087?format=json\"\n
+        \           }\n        ],\n        \"subjects\": {\n            \"count\":
+        17,\n            \"url\": \"https://api.congress.gov/v3/bill/117/hr/3076/subjects?format=json\"\n
+        \       },\n        \"summaries\": {\n            \"count\": 5,\n            \"url\":
+        \"https://api.congress.gov/v3/bill/117/hr/3076/summaries?format=json\"\n        },\n
+        \       \"textVersions\": {\n            \"count\": 7,\n            \"url\":
+        \"https://api.congress.gov/v3/bill/117/hr/3076/text?format=json\"\n        },\n
+        \       \"title\": \"Postal Service Reform Act of 2022\",\n        \"titles\":
+        {\n            \"count\": 14,\n            \"url\": \"https://api.congress.gov/v3/bill/117/hr/3076/titles?format=json\"\n
+        \       },\n        \"type\": \"HR\",\n        \"updateDate\": \"2024-02-07T16:32:33Z\",\n
+        \       \"updateDateIncludingText\": \"2024-02-07T16:49:29Z\"\n    },\n    \"request\":
+        {\n        \"billNumber\": \"3076\",\n        \"billType\": \"hr\",\n        \"congress\":
+        \"117\",\n        \"contentType\": \"application/json\",\n        \"format\":
+        \"json\"\n    }\n}"
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Age:
+      - '0'
+      Cache-Control:
+      - max-age=900
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Ray:
+      - 86c1d3ce2d61c4dc-SEA
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 29 Mar 2024 18:12:18 GMT
+      Expires:
+      - Fri, 29 Mar 2024 18:26:09 GMT
+      Set-Cookie:
+      - __cf_bm=pWhdXLhJwwQ8XRip5RC6zxXJRUyk3sTXDpRq5JMbEgI-1711735938-1.0.1.1-.r33PvSZK7AFMK6mcRG6U6M91TqqQP4CVNVMgDCj..UrxmUuGuryG.5KyQ5ckRm.u8_P6rUKtqwlXMNuUvVFjg;
+        path=/; expires=Fri, 29-Mar-24 18:42:18 GMT; domain=.congress.gov; HttpOnly;
+        SameSite=None
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      - Accept
+      Via:
+      - https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+      X-Api-Umbrella-Request-Id:
+      - cehdkppq2f7i7d1s9hc0
+      X-Cache:
+      - MISS
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4997'
+      X-Vcap-Request-Id:
+      - 02c33b21-72ca-496e-5e3d-beb190f45da7
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

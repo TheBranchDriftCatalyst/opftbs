@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+  // provider = "sqlite"
+  // url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// generator script {
+//   provider             = "prisma-client-py"
+//   recursive_type_depth = 5
+//   interface            = "sync"
+//   // interface            = "asyncio"
+// }
+
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+  output   = "../docs"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../docs/ERD.md"
+  theme    = "dark"
+}
+
+generator trpc {
+  provider                 = "prisma-trpc-generator"
+  withZod                  = true
+  withMiddleware           = false
+  withShield               = false
+  contextPath              = "../src/server/context"
+  output                   = "../src/prisma"
+  // trpcOptionsPath = "../src/trpcOptions"
+  isGenerateSelect         = true
+  isGenerateInclude        = true
+  showModelNameInProcedure = false
+}
+
+model Chapter {
+  index   Int     @default(autoincrement())
+  title   String? @db.VarChar
+  content String  @db.Text
+  storyId Int
+  Story   Story   @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([storyId, index])
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  storyId Int
+  userId  Int
+  content String @db.Text
+  Story   Story  @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  author  User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Story {
+  id        Int             @id @default(autoincrement())
+  uuid      String          @unique @default(uuid()) @db.VarChar
+  title     String          @db.VarChar
+  summary   String?         @db.VarChar
+  authorId  Int
+  chapters  Chapter[]
+  createdAt DateTime        @default(now())
+  reviews   Review[]
+  author    User            @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stats     Stats?          @relation(fields: [statsId], references: [id])
+  tags      TagsOnStories[]
+  statsId   Int?
+}
+
+model Tag {
+  id      Int             @id @default(autoincrement())
+  name    String          @unique @db.VarChar
+  stories TagsOnStories[]
+}
+
+model TagsOnStories {
+  tag     Tag   @relation(fields: [tagId], references: [id])
+  tagId   Int
+  story   Story @relation(fields: [storyId], references: [id])
+  storyId Int
+
+  @@id([tagId, storyId])
+}
+
+model Stats {
+  id    Int     @id @default(autoincrement())
+  views Int?    @default(0)
+  Story Story[]
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique @db.VarChar
+  password      String?   @db.VarChar
+  email         String?   @unique @db.VarChar
+  virtualAuthor Boolean?
+  reviews       Review[]
+  Story         Story[]
+  createdAt     DateTime  @default(now())
+  loggedInAt    DateTime?
+}

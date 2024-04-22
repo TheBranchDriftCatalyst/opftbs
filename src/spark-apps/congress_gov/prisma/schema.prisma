@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bill {
+  congress                     String
+  number                       String
+  origin_chamber_code          String
+  origin_chamber               String?
+  title                        String?
+  type                         String?
+  update_date                  String?
+  update_date_including_text   String?
+  url                          String?
+
+  latest_actions               LatestAction[]
+  committee_reports            CommitteeReport[]
+  cbo_cost_estimates           CBOCostEstimate[]
+  sponsors                     Sponsor[]
+  laws                         Law[]
+  policy_areas                 PolicyArea[]
+  cosponsors                   Cosponsor[]
+
+  @@id([congress, number, origin_chamber_code])
+}
+
+model LatestAction {
+  id              Int    @id @default(autoincrement())
+  action_date     String?
+  text            String?
+  congress_bill   Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id Int
+}
+
+model CommitteeReport {
+  id              Int    @id @default(autoincrement())
+  citation        String?
+  url             String?
+  congress_bill   Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id Int
+}
+
+model CBOCostEstimate {
+  id               Int    @id @default(autoincrement())
+  description      String?
+  pub_date         String?
+  title            String?
+  url              String?
+  congress_bill    Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id  Int
+}
+
+model Sponsor {
+  id               Int    @id @default(autoincrement())
+  bioguide_id      String?
+  district         String?
+  first_name       String?
+  full_name        String?
+  is_by_request    String?
+  last_name        String?
+  middle_name      String?
+  party            String?
+  state            String?
+  url              String?
+  congress_bill    Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id  Int
+}
+
+model Law {
+  id               Int    @id @default(autoincrement())
+  number           String?
+  type             String?
+  congress_bill    Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id  Int
+}
+
+model PolicyArea {
+  id               Int    @id @default(autoincrement())
+  name             String?
+  congress_bill    Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id  Int
+}
+
+model Cosponsor {
+  id               Int    @id @default(autoincrement())
+  bioguide_id      String?
+  district         String?
+  first_name       String?
+  full_name        String?
+  is_by_request    String?
+  last_name        String?
+  middle_name      String?
+  party            String?
+  state            String?
+  url              String?
+  congress_bill    Bill   @relation(fields: [congress_bill_id], references: [id])
+  congress_bill_id  Int
+}

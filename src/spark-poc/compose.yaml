@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  starrocks:
+    image: starrocks/allin1-ubuntu:2.5.4
+    ports:
+      - "9030:9030"
+      - "8030:8030"
+      - "8040:8040"
+    command: ["sh", "-c", "sleep infinity"]
+
+  spark-master:
+    image: apache/spark
+    ports:
+      - "8080:8080"
+    command: bin/spark-class org.apache.spark.deploy.master.Master
+
+  spark-worker:
+    image: apache/spark
+    ports:
+      - "8081:8081"
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_WORKER_CORES=2
+
+  spark-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+    volumes:
+      - ./spark-apps:/app
+    command: spark-submit --master $SPARK_MASTER /app/hadoop-app/hadoop_app.py

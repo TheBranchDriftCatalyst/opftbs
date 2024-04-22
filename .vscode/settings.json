@@ -1,0 +1,32 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "localhost",
+            "username": "postgres",
+            "password": "Hr11pWkfVa",
+            "database": "template0"
+        }
+    ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./services",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "cSpell.words": [
+        "flushall",
+        "labelnames",
+        "pydantic",
+        "sourcery"
+    ],
+    "python.testing.pytestArgs": [
+        "."
+    ]
+}
